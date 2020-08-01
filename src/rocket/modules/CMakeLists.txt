@@ -3,3 +3,4 @@ add_library(rocket_parts
   subroutines.f90
   rocket_function.f90
 )
+target_link_libraries(rocket_parts utilities)
