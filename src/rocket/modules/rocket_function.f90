@@ -76,7 +76,4 @@ real(rkind), allocatable :: output(:,:)
    time=time+dt
   enddo
 
-  do i=1,nsteps-1
-    print *, output(i,:)
-  enddo
   end function

@@ -2,8 +2,6 @@ program main
   use kind_parameters, only : rkind
   implicit none
 
-  integer i
-
   interface
 
     function reference_rocket() result(output)
@@ -11,12 +9,25 @@ program main
       real(rkind), allocatable :: output(:,:)
     end function
 
+    function rocket() result(output)
+      import rkind
+      real(rkind), allocatable :: output(:,:)
+    end function
+
   end interface
 
-  associate(reference_data => reference_rocket())
-    do i=1,size(reference_data,1)
-      print *,reference_data(i,1), reference_data(i,2)
-    end do
+  associate( &
+    reference_output => reference_rocket(), &
+    rocket_output => rocket() &
+  )
+    associate( error => rocket_output - reference_output)
+      block
+        real(rkind), parameter :: tolerance = 1.E-6_rkind
+        if (maxval(abs(error)) > tolerance) error stop "Test failed."
+      end block
+    end associate
   end associate
+
+  print *,"Test passed."
 
 end program
