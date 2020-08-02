@@ -6,7 +6,7 @@
     dt, vol
   use kind_parameters, only : rkind
   implicit none
-  integer i
+  !integer i
 
   r=rref*(p/pref)**n ! calculate burn rate
 
@@ -15,7 +15,7 @@
       surf=0.0_rkind ! burned out to wall
       r=0.0_rkind ! stop adding to burn distance because surface area becomes negative
   endif
-  if(i==1) surf=pi*id*length! no burn distance
+  !if(i==1) surf=pi*id*length! no burn distance
 
   mdotgen=rhos*r*surf
   edotgen=mdotgen*cp*tflame
@@ -27,7 +27,7 @@
 
 
   subroutine massflow
-   USE mod1
+   USE mod1, only : mdotos, edotos, pamb, area, t, g, rgas, p, cp, dsigng, texit
    use kind_parameters, only : rkind
    implicit none
    REAL (rkind)::mdtx,engyx
@@ -85,26 +85,28 @@
          end subroutine
 
   subroutine addmass
-    use mod1
+    use mod1, only : &
+      mcham, mdotgen, dt, mdotos, &
+      echam, edotgen,     edotos
     implicit none
     mcham=mcham+mdotgen*dt-mdotos*dt
     echam=echam+edotgen*dt-edotos*dt
   end subroutine
 
   subroutine calct
-     use mod1
+     use mod1, only : t, echam, mcham, cv
      implicit none
     t=echam/mcham/cv
   end subroutine
 
   subroutine calcp
-    use mod1
+    use mod1, only : p, mcham, rgas, t, vol
     implicit none
     p=mcham*rgas*t/vol
   end subroutine
 
   subroutine calcthrust
-    use mod1
+    use mod1, only : thrust, p, area, cf
     implicit none
     thrust=p*area*cf
   end subroutine
