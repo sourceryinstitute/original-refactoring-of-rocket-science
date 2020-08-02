@@ -23,6 +23,7 @@
 
   subroutine massflow
    USE mod1
+   use kind_parameters, only : rkind
    implicit none
    REAL (rkind)::mdtx,engyx
    REAL (rkind)::tx,gx,rx,px,cpx,pcrit,facx,term1,term2,pratio,cstar,ax,hx
