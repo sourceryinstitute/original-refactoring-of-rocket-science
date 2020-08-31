@@ -8,7 +8,7 @@ real(dp), parameter :: pi=3.1415926539
 real(dp), parameter :: RU=8314d0
 
 real(dp):: cp,cv,g,rgas,mw,vol,dia,cf,id,od,length,rref,rhos,psipa,pref
-real(dp):: db,dt,tmax,Tflame
+real(dp):: db=0,dt,tmax,Tflame
 real(dp):: thrust, area, r, n, surf,mdotgen,mdotout,edotgen,edotout,energy
 real(dp):: mdotos, edotos, texit, dsigng,pamb,p,t
 real(dp):: mcham,echam,time
@@ -231,9 +231,10 @@ close(file_unit)
   time=0d0
 
   do i=1,nsteps
+   output(i,:)=[time,p,t,mdotos,thrust]
+   time=time+dt
    call burnrate
    call calcsurf
-
    call calmdotgen
    call massflow
   ! [mdot,engy,dsign]= massflow(p1,pamb,t1,tamb,cp,cp,rgas,rgas,g,g,area)
@@ -241,10 +242,7 @@ close(file_unit)
    call calct
    call calcp
    call calcthrust
-   output(i,:)=[time,p,t,mdotos,thrust]
-   time=time+dt
-
-  enddo
+ enddo
 
   block
     character(len=*), parameter :: header(*) = &
