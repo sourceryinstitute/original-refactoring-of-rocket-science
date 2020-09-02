@@ -54,18 +54,20 @@ contains
     use universal_constants, only : pi
     class(grain_t), intent(in) :: this
     real(rkind), intent(in) :: burn_depth
-    real(rkind) surface_area
+    real(rkind) surface_area,length, id , od
     integer, parameter :: ends = 2
     real(rkind), parameter :: four=4._rkind
 
     associate(lost_length => ends*burn_depth)
       associate( &
-        grain_length => this%length_ - lost_length, &
-        id => this%id_+ lost_length, &
-        od => (this%od_) &
+        length => this%length_, &
+        id => this%id_, &
+        od => this%od_ &
       )
-        !surface_area = merge(0._rkind, pi*(id*grain_length + (od**2-(id+2*burn_depth)**2)/four), id>od .or. grain_length<0._rkind)
-        surface_area = merge(0._rkind, pi*(id*grain_length)+ 2*pi*(od**2-id**2)/four,id>od.or.grain_length<=0._rkind)
+        surface_area = merge(0.0_rkind,pi*(id+burn_depth*2.)*(length-burn_depth*ends)+ &
+                             pi*(od/2.**2-(id/2+burn_depth)**2)*ends,(id+2*burn_depth)>=od.or.(length-ends*burn_depth)<=0)
+
+
       end associate
     end associate
   end function
@@ -74,21 +76,22 @@ contains
     use universal_constants, only : pi
     class(grain_t), intent(in) :: this
     real(rkind), intent(in) :: burn_depth
-    real(rkind) volume
+    real(rkind) volume, length, ir, or, plenum_volume
     integer, parameter :: ends = 2
 
     associate( &
-      lost_length => ends*burn_depth, &
-      ir => this%id_/2 + burn_depth, &
+      length => this%length_, &
+      ir => this%id_/2, &
       or => this%od_/2, &
       plenum_volume => 1. &
-      !plenum_volume => 1. - pi*(this%id_/2)**2 * this%length_ & ! set initial volume to 1.
-    )
-    !  volume = plenum_volume + pi*(ir**2 * (this%length_ - lost_length) + or**2 * lost_length)
-      !volume= plenum_volume+pi*((ir+burn_depth)**2-ir**2)*this%length_+ends*pi*(or**2-(ir+burn_depth)**2)*burn_depth
-      volume=plenum_volume+pi*(ir**2)*this%length_+ends*pi*(or**2-ir**2)*burn_depth
+      )
+      volume=plenum_volume+pi*(ir+burn_depth)**2.0*length + pi*(or**2-(ir+burn_depth)**2)*burn_depth*ends
+      volume=volume-pi*ir**2*length
+      if(burn_depth>=(or-ir).or.burn_depth.ge.length/2) THEN
+        volume=1+pi*(or**2-ir**2)*length
+      endif
 
-    end associate
+      end associate
   end function
 
 end module grain_module

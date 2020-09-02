@@ -231,22 +231,23 @@ close(file_unit)
   time=0d0
 
   do i=1,nsteps
-   output(i,:)=[time,p,t,mdotos,thrust]
+   output(i,:)=[time,p,t,mdotos,vol]
    time=time+dt
    call burnrate
    call calcsurf
    call calmdotgen
-   call massflow
+
   ! [mdot,engy,dsign]= massflow(p1,pamb,t1,tamb,cp,cp,rgas,rgas,g,g,area)
    call addmass
    call calct
    call calcp
+   call massflow
    call calcthrust
  enddo
 
   block
     character(len=*), parameter :: header(*) = &
-      [ character(len=len("temperature")) :: "time", "pressure", "temperature", "mdotos", "thrust"]
+      [ character(len=len("temperature")) :: "time", "pressure", "temperature", "mdotos", "volume"]
 
     legacy_rocket = results_t(header, output)
   end block
