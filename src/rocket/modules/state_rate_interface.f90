@@ -15,8 +15,11 @@ module state_rate_interface
     real(rkind) burn_depth_rate_ !! surface-normal burn depth increase per unit time
     real(rkind) time_rate_       !! time increase per unit time (always 1)
   contains
-    procedure, private :: multiply
-    generic :: operator(*) => multiply
+    procedure, private :: add
+    procedure, private :: post_multiply
+    procedure, private, pass(this) :: pre_multiply
+    generic :: operator(*) => post_multiply, pre_multiply
+    generic :: operator(+) => add
   end type
 
   interface state_rate_t
@@ -32,13 +35,31 @@ module state_rate_interface
       type(state_rate_t) new_rate
     end function
 
-    pure module function multiply(this, rhs) result(this_x_rhs)
+    pure module function post_multiply(this, rhs) result(this_x_rhs)
       !! result has components computed from multiply each rhs component by dt
       use state_interface, only : state_t
       implicit none
       class(state_rate_t), intent(in) :: this
       real(rkind), intent(in) :: rhs
       type(state_t) this_x_rhs
+    end function
+
+    pure module function pre_multiply(lhs, this) result(lhs_x_this)
+      !! result has components computed from multiply each rhs component by dt
+      use state_interface, only : state_t
+      implicit none
+      class(state_rate_t), intent(in) :: this
+      integer, intent(in) :: lhs
+      type(state_rate_t) lhs_x_this
+    end function
+
+    pure module function add(this, rhs) result(total)
+      !! result has components computed from summing each pair of rhs & lhs components
+      use state_interface, only : state_t
+      implicit none
+      class(state_rate_t), intent(in) :: this
+      type(state_rate_t), intent(in) :: rhs
+      type(state_rate_t) total
     end function
 
   end interface

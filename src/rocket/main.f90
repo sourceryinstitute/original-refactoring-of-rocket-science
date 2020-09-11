@@ -5,7 +5,7 @@ program main
   use kind_parameters, only : rkind
   implicit none
 
-  real(rkind), parameter :: zero=0._rkind
+  real(rkind), parameter :: zero=0._rkind, two =  2._rkind
   character(len=*), parameter :: input_file="rocket.inp"
 
   type(motor_t) motor
@@ -18,10 +18,18 @@ program main
     call state%define(input_file, gas=chamber%gas(), volume=chamber%initial_volume(), time=zero, burn_depth=zero)
   end associate
 
-  associate(dt => motor%dt() )
+  associate(h => motor%dt() )
     history = [state]
     do while(state%time() < motor%t_max())
-      state = state + motor%d_dt(state)*dt
+      associate(k1 => motor%d_dt(state))
+        associate(k2 => motor%d_dt(state + k1*(h/2)))
+          associate(k3 => motor%d_dt(state + k2*(h/2)))
+            associate(k4 => motor%d_dt(state + k3*h))
+              state = state + (k1 + 2*k2 + 2*k3 + k4)*(h/6._rkind)
+            end associate
+          end associate
+        end associate
+      end associate
       history = [history, state]
     end do
   end associate
