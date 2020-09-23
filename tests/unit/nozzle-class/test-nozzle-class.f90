@@ -15,24 +15,35 @@ program main
   real(rkind) :: thrust_1
   real(rkind) :: thrust_2
 
-  call random_number(diameter)
-  call random_number(C_f)
-  call random_number(pressure_1)
-  call random_number(pressure_2)
+  do
+    call random_number(diameter)
+    if (diameter > 0.0_rkind) exit
+  end do
+  do
+    call random_number(C_f)
+    if (C_f > 0.0_rkind) exit
+  end do
+  do
+    call random_number(pressure_1)
+    if (pressure_1 > 0.0_rkind) exit
+  end do
+  do
+    call random_number(pressure_2)
+    if (pressure_2 > pressure_1) exit
+  end do
 
   nozzle = nozzle_t(diameter = diameter, C_f = C_f)
 
-  call assert( &
-      abs(nozzle%diameter() - diameter) < 1.0e-6_rkind, &
-      "the given diameter is preserved")
-  call assert( &
-      abs(nozzle%area() - diameter**2 / 4.0_rkind * PI) < 1.0e-6_rkind, &
-      "the area is calculated in accordance with the given diameter")
   thrust_1 = nozzle%thrust(pressure_1)
   thrust_2 = nozzle%thrust(pressure_2)
+
   call assert(&
-      abs(thrust_1/pressure_1 - thrust_2/pressure_2) < 1.0e-6_rkind, &
-      "thrust is proportional to the pressure")
+      thrust_1 < thrust_2, &
+      "thrust is greater with greater pressure")
+
+  call assert( &
+      abs(nozzle%thrust(0._rkind)) < 1.0e-6_rkind, &
+      "thrust is zero with zero pressure")
 
   print *," Test passed."
 
