@@ -15,7 +15,18 @@ module nozzle_interface
     procedure :: define, diameter, area, thrust
   end type
 
+  interface nozzle_t
+    module procedure nozzle_constructor
+  end interface
+
   interface
+
+    pure module function nozzle_constructor(diameter, C_f) result(nozzle)
+        implicit none
+        real(rkind), intent(in) :: diameter
+        real(rkind), intent(in) :: C_f
+        type(nozzle_t) :: nozzle
+    end function
 
     module subroutine define(this, input_file)
       implicit none

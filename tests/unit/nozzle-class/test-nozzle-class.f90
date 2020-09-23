@@ -8,7 +8,7 @@ program main
 
   type(nozzle_t) :: nozzle
 
-  call nozzle%define("rocket.inp")
+  nozzle = nozzle_t(diameter = 0.05_rkind, C_f = 1.7_rkind)
 
   call assert(abs(nozzle%diameter() - 0.05_rkind) < 1.0e-6_rkind, "diameter")
   call assert(abs(nozzle%area() - 0.05_rkind**2 / 4 * PI) < 1.0e-6_rkind, "area")

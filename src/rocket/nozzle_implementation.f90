@@ -6,6 +6,11 @@ submodule(nozzle_interface) nozzle_implementation
 
 contains
 
+  module procedure nozzle_constructor
+    nozzle%diameter_ = diameter
+    nozzle%C_f_ = C_f
+  end procedure
+
    module procedure define
       real(rkind) dia_ , C_f_
       namelist/nozzle_list/ dia_, C_f_
