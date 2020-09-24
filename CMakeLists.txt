@@ -109,7 +109,6 @@ endforeach()
 # Unit tests that create individual executable programs
 foreach(unit_test
   results-class
-  state-class
   with-vegies
 )
   add_test( NAME "${unit_test}"
