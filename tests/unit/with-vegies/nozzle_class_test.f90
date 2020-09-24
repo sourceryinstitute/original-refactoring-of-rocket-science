@@ -9,6 +9,7 @@ module nozzle_class_test
             ShrinkResult_t, &
             TestItem_t, &
             assertEquals, &
+            assertThat, &
             describe, &
             fail, &
             Generated, &
@@ -39,7 +40,11 @@ contains
                 [it( &
                         "has zero thrust at zero pressure", &
                         nozzle_generator_t(), &
-                        check_thrust_at_zero)])
+                        check_thrust_at_zero), &
+                it( &
+                        "has greater thrust with greater pressure", &
+                        nozzle_generator_t(), &
+                        check_thrust_vs_pressure)])
     end function
 
     pure function check_thrust_at_zero(input) result(result_)
@@ -49,6 +54,19 @@ contains
         select type (input)
         type is (nozzle_input_t)
             result_ = assertEquals(0.0_rkind, input%nozzle%thrust(0.0_rkind))
+        class default
+            result_ = fail("expected a nozzle_input_t")
+        end select
+    end function
+
+    pure function check_thrust_vs_pressure(input) result(result_)
+        class(Input_t), intent(in) :: input
+        type(Result_t) :: result_
+
+        select type (input)
+        type is (nozzle_input_t)
+            result_ = assertThat( &
+                    input%nozzle%thrust(2.0_rkind) < input%nozzle%thrust(3.0_rkind))
         class default
             result_ = fail("expected a nozzle_input_t")
         end select
