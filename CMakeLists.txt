@@ -111,12 +111,13 @@ foreach(unit_test
   results-class
   nozzle-class
   state-class
+  with-vegies
 )
   add_test( NAME "${unit_test}"
     COMMAND ${CMAKE_BINARY_DIR}/tests/unit/${unit_test}/test-${unit_test}
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tests/unit/${unit_test}"
   )
   set_tests_properties(${unit_test}
-     PROPERTIES PASS_REGULAR_EXPRESSION "Test passed."
+     PROPERTIES PASS_REGULAR_EXPRESSION "assed."
   )
 endforeach()
