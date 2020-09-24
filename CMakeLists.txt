@@ -110,6 +110,7 @@ endforeach()
 foreach(unit_test
   results-class
   nozzle-class
+  state-class
 )
   add_test( NAME "${unit_test}"
     COMMAND ${CMAKE_BINARY_DIR}/tests/unit/${unit_test}/test-${unit_test}
