@@ -82,7 +82,7 @@ if(HAVE_ERROR_STOP_IN_PURE)
   add_definitions(-DHAVE_ERROR_STOP_IN_PURE)
 endif()
 
-foreach(directory src tests)
+foreach(directory src tests submodules)
   add_subdirectory("${directory}")
 endforeach()
 
