@@ -3,6 +3,7 @@ implicit none
 save
 integer, parameter :: precision=15, range=307
 integer, parameter :: dp = selected_real_kind(precision, range)
+real(dp), parameter :: gravity=9.81_dp
 real(dp), parameter :: pi=3.1415926539
 real(dp), parameter :: RU=8314d0
 real(dp), parameter :: zero=0._dp, one=1._dp
@@ -13,9 +14,19 @@ real(dp):: thrust=zero, area, r, n, surf,mdotgen,mdotout,edotgen,edotout,energy
 real(dp):: mdotos=zero, edotos, texit, dsigng,pamb,p,t
 real(dp):: mcham,echam,time=zero
 integer nsteps,i
+real(dp):: accel=zero, vel=zero, altitude=zero, rocketmass=zero
 real(dp), allocatable :: output(:,:)
 
 end module
+
+subroutine propwt ! calculate weight of propellent
+  use mod1
+  implicit none
+  real(dp) propmass
+  propmass=pi/4*(id**2-od**2)*lenght*rhos
+  rocketmass=0.15*propmass ! assume 85% propellant loading and 15% extra wt of rocket
+end subroutine
+
 
 subroutine burnrate
   use mod1
@@ -121,6 +132,17 @@ subroutine calcthrust
     thrust=(p-pamb)*area*cf ! correction to thrust (actual vs vacuum thrust)
 end subroutine
 
+subroutine height
+  use mod1
+  implicit none
+  propmass=propmass=mdotos*dt ! incremental change in propellant mass
+  accel=thrust/(propmass+rocketmass)-g
+  vel=vel+accel*dt
+  altitude=altitude+vel*dt
+end subroutine
+
+
+
 !!  Main program
 
 
@@ -200,7 +222,7 @@ close(file_unit)
   nsteps=nint(tmax/dt) ! number of time steps
 
 ! preallocate an output file for simulation infomration
-  allocate(output(0:nsteps,6))
+  allocate(output(0:nsteps,9))
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 
@@ -218,8 +240,8 @@ close(file_unit)
   mcham=p*vol/rgas/t  ! use ideal gas law to determine mass in chamber
   echam=mcham*cv*t ! initial internal energy in chamber
 
-  output(0,:)=[time,p,t,mdotos,thrust,vol]
-
+  output(0,:)=[time,p,t,mdotos,thrust,vol, accel, vel, altitude]
+  call propwt
   do i=1,nsteps
    call burnrate
    call calcsurf
@@ -229,14 +251,16 @@ close(file_unit)
    call calct
    call calcp
    call calcthrust
+   call height
    time=time+dt
-   output(i,:)=[time,p,t,mdotos,thrust,vol]
+   output(i,:)=[time,p,t,mdotos,thrust,vol,accel,vel,altitude]
 
   enddo
 
   block
     character(len=*), parameter :: header(*) = [ character(len=len("temperatureLegacy)")) :: &
-      "timeLegacy", "pressureLegacy", "temperatureLegacy", "mdotosLegacy", "thrustLegacy", "volumeLegacy"]
+      "timeLegacy", "pressureLegacy", "temperatureLegacy", "mdotosLegacy", "thrustLegacy", "volumeLegacy"&
+      "Accelertion","velociity", "altitude"]
     legacy_rocket = results_t(header, output)
   end block
 
