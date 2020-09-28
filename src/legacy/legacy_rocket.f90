@@ -12,7 +12,7 @@ real(dp):: cp,cv,g,rgas,mw,vol=one,dia,cf,id,od,length,rref,rhos,psipa,pref
 real(dp):: db=zero,dt,tmax,Tflame
 real(dp):: thrust=zero, area, r, n, surf,mdotgen,mdotout,edotgen,edotout,energy
 real(dp):: mdotos=zero, edotos, texit, dsigng,pamb,p,t
-real(dp):: mcham,echam,time=zero
+real(dp):: mcham,echam,time=zero,propmass=zero
 integer nsteps,i
 real(dp):: accel=zero, vel=zero, altitude=zero, rocketmass=zero
 real(dp), allocatable :: output(:,:)
@@ -22,8 +22,7 @@ end module
 subroutine propwt ! calculate weight of propellent
   use mod1
   implicit none
-  real(dp) propmass
-  propmass=pi/4*(id**2-od**2)*lenght*rhos
+  propmass=pi/4*(od**2-id**2)*length*rhos
   rocketmass=0.15*propmass ! assume 85% propellant loading and 15% extra wt of rocket
 end subroutine
 
@@ -135,8 +134,8 @@ end subroutine
 subroutine height
   use mod1
   implicit none
-  propmass=propmass=mdotos*dt ! incremental change in propellant mass
-  accel=thrust/(propmass+rocketmass)-g
+  propmass=propmass-mdotgen*dt ! incremental change in propellant mass
+  accel=thrust/(propmass+rocketmass+mcham)-gravity
   vel=vel+accel*dt
   altitude=altitude+vel*dt
 end subroutine
@@ -259,7 +258,7 @@ close(file_unit)
 
   block
     character(len=*), parameter :: header(*) = [ character(len=len("temperatureLegacy)")) :: &
-      "timeLegacy", "pressureLegacy", "temperatureLegacy", "mdotosLegacy", "thrustLegacy", "volumeLegacy"&
+      "timeLegacy", "pressureLegacy", "temperatureLegacy", "mdotosLegacy", "thrustLegacy", "volumeLegacy",&
       "Accelertion","velociity", "altitude"]
     legacy_rocket = results_t(header, output)
   end block
