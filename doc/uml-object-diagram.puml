@@ -12,8 +12,8 @@ Title Objects Supporting the Rocket Main Program
   object state_t
   object state_rate_t
 
-  motor -left- state : differentiates >
-  motor -right-> state_rate_t : produces 
+  motor -left- state : d_dt >
+  motor -right-> state_rate_t : produces
   state_rate_t -> state_t : produces
   motor *-- numerics
   motor *-- chamber
